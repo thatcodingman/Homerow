@@ -79,7 +79,7 @@ const shareBtn = document.getElementById('shareBtn');
 if (passageEl) {
   // ============ State ============
   let duration = 30;
-  let target = generatePassage(60);
+  let target = generatePassage(Math.max(60, duration * 6));
   let startTime = null;
   let timerInterval = null;
   let running = false;
@@ -92,7 +92,7 @@ if (passageEl) {
     let html = '';
     for (let i = 0; i < target.length; i++) {
       const cls = states[i] + (i === typed.length ? ' current' : '');
-      const ch = target[i] === ' ' ? '&nbsp;' : escapeChar(target[i]);
+      const ch = target[i] === ' ' ? ' ' : escapeChar(target[i]);
       html += `<span class="char ${cls}">${ch}</span>`;
     }
     passageEl.innerHTML = html;
@@ -129,7 +129,7 @@ if (passageEl) {
       const y = h - (v / max) * h;
       return `${x.toFixed(1)},${y.toFixed(1)}`;
     });
-    sparkline.innerHTML = `<polyline points="${pts.join(' ')}" fill="none" stroke="#E8B84B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />`;
+    sparkline.innerHTML = `<polyline points="${pts.join(' ')}" fill="none" stroke="#F5C34E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 4px rgba(245,195,78,.5));" />`;
   }
 
   function finish() {
@@ -156,7 +156,7 @@ if (passageEl) {
     finished = false;
     startTime = null;
     wpmSamples = [];
-    target = generatePassage(60);
+    target = generatePassage(Math.max(60, duration * 6));
     hiddenInput.value = '';
     timeStat.textContent = duration;
     wpmStat.textContent = '0';

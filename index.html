@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google-adsense-account" content="ca-pub-8828337552440063">
+<title>Home Row — A typing speed test</title>
+<meta name="description" content="Test your typing speed and accuracy. Live WPM, a running pace graph, and a satisfying key-click sound. Nothing you type is ever uploaded.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://homerow.app/">
+<meta property="og:title" content="Home Row — A typing speed test">
+<meta property="og:description" content="Test your typing speed and accuracy. Live WPM, a running pace graph, and a satisfying key-click sound.">
+<meta property="og:image" content="https://homerow.app/homerow-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://homerow.app/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' fill='%2314181F'/><rect x='6' y='18' width='6' height='6' fill='%23E8B84B'/><rect x='14' y='18' width='6' height='6' fill='%23E8B84B'/><rect x='22' y='18' width='6' height='6' fill='%23E8B84B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Red+Hat+Mono:wght@400;500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="homerow-styles.css">
+</head>
+<body>
+
+<header class="nav">
+  <a href="index.html" class="wordmark">Home Row</a>
+  <nav class="nav-links">
+    <a href="homerow-about.html">About</a>
+    <a href="homerow-faq.html">FAQ</a>
+    <a href="homerow-contact.html">Contact</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow">Typing test</p>
+    <h1>How fast are your hands, really?</h1>
+    <p class="lead">Click the text below and start typing. Your pace, accuracy, and rhythm — tracked live, nothing saved anywhere.</p>
+  </section>
+
+  <div class="duration-row">
+    <button class="duration-btn" data-duration="15">15s</button>
+    <button class="duration-btn active" data-duration="30">30s</button>
+    <button class="duration-btn" data-duration="60">60s</button>
+    <button class="duration-btn" data-duration="120">120s</button>
+  </div>
+
+  <label class="sound-toggle">
+    <input type="checkbox" id="soundToggle">
+    Key click sound
+  </label>
+
+  <div class="stats-row">
+    <div class="stat"><span class="stat-value" id="timeStat">30</span><span class="stat-label">Seconds</span></div>
+    <div class="stat"><span class="stat-value" id="wpmStat">0</span><span class="stat-label">WPM</span></div>
+    <div class="stat"><span class="stat-value" id="accStat">100%</span><span class="stat-label">Accuracy</span></div>
+  </div>
+
+  <div class="type-zone">
+    <div class="passage" id="passage"></div>
+    <div class="focus-hint" id="focusHint">Click here to start typing</div>
+    <textarea class="hidden-input" id="hiddenInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+  </div>
+
+  <div class="sparkline-wrap">
+    <svg id="sparkline" viewBox="0 0 500 60" preserveAspectRatio="none"></svg>
+  </div>
+
+  <div class="results-card" id="resultsCard">
+    <p class="big-wpm" id="resultWPM">0</p>
+    <p class="big-wpm-label">Words per minute</p>
+    <div class="results-grid">
+      <div class="stat"><span class="stat-value" id="resultAccuracy">100%</span><span class="stat-label">Accuracy</span></div>
+      <div class="stat"><span class="stat-value" id="resultRaw">0</span><span class="stat-label">Raw WPM</span></div>
+      <div class="stat"><span class="stat-value" id="resultChars">0 / 0</span><span class="stat-label">Characters</span></div>
+    </div>
+    <div class="btn-row">
+      <button class="primary" id="restartBtn">Try again</button>
+      <button class="secondary" id="shareBtn">Copy result</button>
+    </div>
+  </div>
+
+  <p class="tool-note">Everything runs in your browser — no keystrokes, results, or timing data are ever sent anywhere.</p>
+</main>
+
+<footer>
+<p class="network-links">More free tools from us: <a href="https://usequietzone.com">Quiet Zone</a> · <a href="https://quantizeapp.com">Quantize</a> · <a href="https://monospace.tools">monospace</a> · <a href="https://crossovercalc.app">Crossover</a></p>
+  <div class="foot-inner">
+    <nav>
+      <a href="homerow-about.html">About</a>
+      <a href="homerow-faq.html">FAQ</a>
+      <a href="homerow-contact.html">Contact</a>
+      <a href="homerow-terms.html">Terms</a>
+      <a href="homerow-privacy.html">Privacy</a>
+    </nav>
+    <p>© 2026 Home Row</p>
+  </div>
+</footer>
+
+<script src="homerow-app.js"></script>
+</body>
+</html>

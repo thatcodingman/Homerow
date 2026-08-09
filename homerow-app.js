@@ -175,8 +175,8 @@ if (passageEl) {
     if (hiddenInput.value.length >= target.length) finish();
   });
 
-  passageEl.addEventListener('click', () => hiddenInput.focus());
-  focusHint.addEventListener('click', () => hiddenInput.focus());
+  passageEl.addEventListener('click', () => hiddenInput.focus({ preventScroll: true }));
+  focusHint.addEventListener('click', () => hiddenInput.focus({ preventScroll: true }));
   hiddenInput.addEventListener('focus', () => { focusHint.hidden = true; });
   hiddenInput.addEventListener('blur', () => { if (!finished) focusHint.hidden = false; });
 

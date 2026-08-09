@@ -108,6 +108,11 @@ main { max-width: 900px; margin: 0 auto; padding: 0 32px; }
 .results-card.show { display: block; }
 .results-card .big-wpm { font-family: var(--display); font-size: 3.4rem; color: var(--correct); margin: 0; text-shadow: 0 0 40px rgba(245,195,78,.35); }
 .results-card .big-wpm-label { font-family: var(--mono); font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 20px; }
+.best-badge {
+  font-family: var(--mono); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--correct); margin: 0 0 14px; text-shadow: 0 0 14px rgba(245,195,78,.3);
+}
+.best-badge[hidden] { display: none; }
 .results-grid { display: flex; justify-content: center; gap: 40px; margin: 20px 0 28px; flex-wrap: wrap; }
 
 .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }

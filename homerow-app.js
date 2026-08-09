@@ -58,6 +58,29 @@ function playClick() {
   }
 }
 
+// ============ Personal best tracking (localStorage, never leaves the browser) ============
+function getBests() {
+  try {
+    const raw = localStorage.getItem('homerow-bests');
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function updateBest(duration, wpm) {
+  try {
+    const bests = getBests();
+    const isNew = !bests[duration] || wpm > bests[duration];
+    if (isNew) {
+      bests[duration] = wpm;
+      localStorage.setItem('homerow-bests', JSON.stringify(bests));
+    }
+    return { best: bests[duration], isNew };
+  } catch (e) {
+    return { best: wpm, isNew: false };
+  }
+}
 // ============ DOM refs ============
 const passageEl = document.getElementById('passage');
 const hiddenInput = document.getElementById('hiddenInput');
@@ -75,6 +98,7 @@ const resultRaw = document.getElementById('resultRaw');
 const resultChars = document.getElementById('resultChars');
 const restartBtn = document.getElementById('restartBtn');
 const shareBtn = document.getElementById('shareBtn');
+const bestBadge = document.getElementById('bestBadge');
 
 if (passageEl) {
   // ============ State ============
@@ -144,6 +168,13 @@ if (passageEl) {
     resultAccuracy.textContent = Math.round(stats.accuracy) + '%';
     resultRaw.textContent = Math.round(stats.rawWPM);
     resultChars.textContent = `${stats.correct} / ${stats.total}`;
+
+    const { best, isNew } = updateBest(duration, Math.round(stats.netWPM));
+    if (bestBadge) {
+      bestBadge.textContent = isNew ? 'New personal best!' : `Personal best at ${duration}s: ${best} WPM`;
+      bestBadge.hidden = false;
+    }
+
     resultsCard.classList.add('show');
     passageEl.classList.add('blurred');
     focusHint.hidden = true;
@@ -164,6 +195,7 @@ if (passageEl) {
     if (sparkline) sparkline.innerHTML = '';
     resultsCard.classList.remove('show');
     passageEl.classList.remove('blurred');
+    if (bestBadge) bestBadge.hidden = true;
     renderPassage();
   }
 

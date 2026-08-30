@@ -90,6 +90,15 @@ function computeStats(typed, target, elapsedSeconds) {
   return { netWPM, rawWPM, accuracy, correct, total, score };
 }
 
+function computeConsistency(samples) {
+  if (samples.length < 2) return 100;
+  const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
+  if (mean === 0) return 100;
+  const variance = samples.reduce((a, b) => a + (b - mean) ** 2, 0) / samples.length;
+  const stdev = Math.sqrt(variance);
+  return Math.round(Math.max(0, Math.min(100, 100 - (stdev / mean) * 100)));
+}
+
 // ============ Synthesized key-click sound (no audio file needed) ============
 let audioCtx = null;
 function playClick() {
@@ -217,17 +226,21 @@ function pulseMilestone(el) {
 
 // ============ DOM refs ============
 const passageEl = document.getElementById('passage');
+const caretEl = document.getElementById('caret');
 const hiddenInput = document.getElementById('hiddenInput');
 const focusHint = document.getElementById('focusHint');
 const typeZone = document.getElementById('typeZone');
 const durationBtns = document.querySelectorAll('.duration-btn');
 const modeBtns = document.querySelectorAll('.mode-btn');
+const modeRow = document.querySelector('.mode-row');
+const durationRow = document.querySelector('.duration-row');
 const soundToggle = document.getElementById('soundToggle');
 const timeStat = document.getElementById('timeStat');
 const wpmStat = document.getElementById('wpmStat');
 const accStat = document.getElementById('accStat');
 const timeProgressFill = document.getElementById('timeProgressFill');
-const stateBadge = document.getElementById('stateBadge');
+const stateDot = document.getElementById('stateDot');
+const stateText = document.getElementById('stateText');
 const streakBadge = document.getElementById('streakBadge');
 const sparkline = document.getElementById('sparkline');
 const resultsCard = document.getElementById('resultsCard');
@@ -235,6 +248,8 @@ const resultWPM = document.getElementById('resultWPM');
 const resultAccuracy = document.getElementById('resultAccuracy');
 const resultScore = document.getElementById('resultScore');
 const resultRaw = document.getElementById('resultRaw');
+const resultErrors = document.getElementById('resultErrors');
+const resultConsistency = document.getElementById('resultConsistency');
 const resultChars = document.getElementById('resultChars');
 const restartBtn = document.getElementById('restartBtn');
 const shareBtn = document.getElementById('shareBtn');
@@ -272,6 +287,48 @@ if (passageEl) {
     }
   }
 
+  function hideFocusHint() {
+    if (!focusHint || focusHint.hidden) return;
+    focusHint.classList.add('fading');
+    setTimeout(() => {
+      focusHint.hidden = true;
+      focusHint.classList.remove('fading');
+    }, 200);
+  }
+
+  function setState(label) {
+    if (!stateText || !stateDot) return;
+    stateText.textContent = label;
+    stateText.classList.remove('typing', 'finished');
+    stateDot.classList.remove('typing', 'finished');
+    const cls = label.toLowerCase();
+    if (cls === 'typing' || cls === 'finished') {
+      stateText.classList.add(cls);
+      stateDot.classList.add(cls);
+    }
+  }
+
+  function setControlsQuiet(quiet) {
+    if (modeRow) modeRow.classList.toggle('quiet', quiet);
+    if (durationRow) durationRow.classList.toggle('quiet', quiet);
+  }
+
+  function updateCaret() {
+    if (!caretEl) return;
+    const cur = passageEl.querySelector('.char.current');
+    if (!cur) { caretEl.style.opacity = '0'; return; }
+    const top = passageEl.offsetTop + cur.offsetTop - passageEl.scrollTop;
+    const left = passageEl.offsetLeft + cur.offsetLeft;
+    caretEl.style.transform = `translate(${left}px, ${top}px)`;
+    caretEl.style.height = cur.offsetHeight + 'px';
+  }
+
+  function scrollToCurrentLine(cur) {
+    if (!cur) return;
+    const lineHeight = parseFloat(getComputedStyle(passageEl).lineHeight) || 41;
+    passageEl.scrollTop = Math.max(0, cur.offsetTop - lineHeight);
+  }
+
   function renderPassage() {
     const typed = hiddenInput.value;
     const states = diffStates(typed, target);
@@ -291,6 +348,9 @@ if (passageEl) {
       html += `<span class="char ${cls}">${ch}</span>`;
     }
     passageEl.innerHTML = html;
+    const curEl = passageEl.querySelector('.char.current');
+    scrollToCurrentLine(curEl);
+    updateCaret();
   }
 
   function escapeChar(c) {
@@ -311,7 +371,9 @@ if (passageEl) {
   function startTimer() {
     running = true;
     startTime = Date.now();
-    if (stateBadge) { stateBadge.textContent = 'Typing'; stateBadge.classList.remove('finished'); stateBadge.classList.add('typing'); }
+    setState('Typing');
+    setControlsQuiet(true);
+    typeZone.classList.add('active-test');
     timerInterval = setInterval(() => {
       const elapsed = (Date.now() - startTime) / 1000;
       const remaining = Math.max(0, duration - elapsed);
@@ -367,6 +429,8 @@ if (passageEl) {
     resultAccuracy.textContent = Math.round(stats.accuracy) + '%';
     resultScore.textContent = Math.round(stats.score);
     resultRaw.textContent = Math.round(stats.rawWPM);
+    resultErrors.textContent = stats.total - stats.correct;
+    resultConsistency.textContent = computeConsistency(wpmSamples) + '%';
     resultChars.textContent = `${stats.correct} / ${stats.total}`;
 
     const { best, isNew } = updateBest(duration, Math.round(stats.netWPM));
@@ -395,13 +459,16 @@ if (passageEl) {
 
     renderHeatmap(keyboardEl, heatmapWrap, keyErrorCounts);
 
-    if (stateBadge) { stateBadge.textContent = 'Finished'; stateBadge.classList.remove('typing'); stateBadge.classList.add('finished'); }
+    setState('Finished');
+    setControlsQuiet(false);
 
     resultsCard.classList.add('show');
     passageEl.classList.add('blurred');
     typeZone.classList.remove('focused');
+    typeZone.classList.remove('active-test');
     timeStat.classList.remove('warning');
     if (timeProgressFill) timeProgressFill.classList.remove('warning');
+    if (caretEl) caretEl.style.opacity = '0';
     focusHint.hidden = true;
     hiddenInput.blur();
   }
@@ -420,6 +487,7 @@ if (passageEl) {
     accMilestoneHit = false;
     target = buildTarget(mode, duration);
     hiddenInput.value = '';
+    passageEl.scrollTop = 0;
     timeStat.textContent = duration;
     timeStat.classList.remove('warning');
     wpmStat.textContent = '0';
@@ -431,7 +499,8 @@ if (passageEl) {
     if (bestBadge) bestBadge.hidden = true;
     if (streakLine) streakLine.hidden = true;
     if (heatmapWrap) heatmapWrap.hidden = true;
-    if (stateBadge) { stateBadge.textContent = 'Ready'; stateBadge.classList.remove('typing', 'finished'); }
+    setState('Ready');
+    setControlsQuiet(false);
     renderPassage();
   }
 
@@ -446,7 +515,7 @@ if (passageEl) {
 
   passageEl.addEventListener('click', () => hiddenInput.focus({ preventScroll: true }));
   focusHint.addEventListener('click', () => hiddenInput.focus({ preventScroll: true }));
-  hiddenInput.addEventListener('focus', () => { focusHint.hidden = true; typeZone.classList.add('focused'); });
+  hiddenInput.addEventListener('focus', () => { hideFocusHint(); typeZone.classList.add('focused'); });
   hiddenInput.addEventListener('blur', () => { if (!finished) { focusHint.hidden = false; typeZone.classList.remove('focused'); } });
 
   durationBtns.forEach((btn) => {

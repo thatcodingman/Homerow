@@ -638,5 +638,17 @@ if (passageEl) {
     });
   }
 
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      reset();
+      hiddenInput.blur();
+      return;
+    }
+    if ((e.key === 'r' || e.key === 'R') && (finished || document.activeElement !== hiddenInput)) {
+      e.preventDefault();
+      reset();
+    }
+  });
+
   reset();
 }

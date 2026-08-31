@@ -148,6 +148,23 @@ main { max-width: 900px; margin: 0 auto; padding: 0 32px; }
   100% { filter: brightness(1); }
 }
 
+.passage .char.correct.behind { opacity: .55; }
+
+.countdown {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: 2.6rem; color: var(--correct);
+  background: rgba(20,24,31,.6); border-radius: 8px; pointer-events: none;
+  opacity: 0; transition: opacity .15s ease; text-shadow: 0 0 24px rgba(245,195,78,.4);
+}
+.countdown.show { opacity: 1; }
+.countdown.pop { animation: countdownPop .26s ease; }
+.countdown[hidden] { display: none; }
+@keyframes countdownPop {
+  0% { transform: scale(.7); opacity: .3; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 .caret {
   position: absolute; top: 0; left: 0; width: 2px; background: var(--cursor);
   border-radius: 1px; pointer-events: none; opacity: 0;

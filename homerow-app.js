@@ -229,6 +229,7 @@ const passageEl = document.getElementById('passage');
 const caretEl = document.getElementById('caret');
 const hiddenInput = document.getElementById('hiddenInput');
 const focusHint = document.getElementById('focusHint');
+const countdownEl = document.getElementById('countdown');
 const typeZone = document.getElementById('typeZone');
 const durationBtns = document.querySelectorAll('.duration-btn');
 const modeBtns = document.querySelectorAll('.mode-btn');
@@ -275,6 +276,8 @@ if (passageEl) {
   let lastAccShown = 100;
   let wpmMilestoneHit = false;
   let accMilestoneHit = false;
+  let countdownActive = false;
+  let countdownTimer = null;
 
   // Show any existing streak on load
   const existingStreak = currentStreakDisplay();
@@ -294,6 +297,43 @@ if (passageEl) {
       focusHint.hidden = true;
       focusHint.classList.remove('fading');
     }, 200);
+  }
+
+  function startCountdown() {
+    if (!countdownEl || countdownActive || running || finished) return;
+    countdownActive = true;
+    const seq = ['3', '2', '1', 'GO'];
+    let i = 0;
+    countdownEl.hidden = false;
+    countdownEl.classList.add('show');
+    function step() {
+      if (!countdownActive) return;
+      countdownEl.textContent = seq[i];
+      countdownEl.classList.remove('pop');
+      void countdownEl.offsetWidth;
+      countdownEl.classList.add('pop');
+      i++;
+      if (i < seq.length) {
+        countdownTimer = setTimeout(step, 260);
+      } else {
+        countdownTimer = setTimeout(() => {
+          countdownEl.classList.remove('show');
+          setTimeout(() => { if (countdownEl) countdownEl.hidden = true; }, 150);
+          countdownActive = false;
+        }, 260);
+      }
+    }
+    step();
+  }
+
+  function cancelCountdown() {
+    if (!countdownActive) return;
+    countdownActive = false;
+    clearTimeout(countdownTimer);
+    if (countdownEl) {
+      countdownEl.classList.remove('show');
+      countdownEl.hidden = true;
+    }
   }
 
   function setState(label) {
@@ -343,6 +383,7 @@ if (passageEl) {
       if (i === cursor) cls += ' current';
       if (i >= wordStart && i < wordEnd && states[i] !== 'incorrect') cls += ' in-word';
       if (states[i] === 'pending' && i - cursor > 120) cls += ' far';
+      if (states[i] === 'correct' && cursor - i > 60) cls += ' behind';
       if (i === cursor - 1 && states[i] === 'incorrect') cls += ' flash';
       const ch = target[i] === ' ' ? ' ' : escapeChar(target[i]);
       html += `<span class="char ${cls}">${ch}</span>`;
@@ -502,11 +543,13 @@ if (passageEl) {
     if (heatmapWrap) heatmapWrap.hidden = true;
     setState('Ready');
     setControlsQuiet(false);
+    cancelCountdown();
     renderPassage();
   }
 
   hiddenInput.addEventListener('input', () => {
     if (finished) return;
+    cancelCountdown();
     if (!running) startTimer();
     trackKeyError(hiddenInput.value);
     playClick();
@@ -516,7 +559,7 @@ if (passageEl) {
 
   passageEl.addEventListener('click', () => hiddenInput.focus({ preventScroll: true }));
   focusHint.addEventListener('click', () => hiddenInput.focus({ preventScroll: true }));
-  hiddenInput.addEventListener('focus', () => { hideFocusHint(); typeZone.classList.add('focused'); });
+  hiddenInput.addEventListener('focus', () => { hideFocusHint(); startCountdown(); typeZone.classList.add('focused'); });
   hiddenInput.addEventListener('blur', () => { if (!finished) { focusHint.hidden = false; typeZone.classList.remove('focused'); } });
 
   durationBtns.forEach((btn) => {

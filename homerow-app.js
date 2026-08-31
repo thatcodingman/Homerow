@@ -177,6 +177,28 @@ function currentStreakDisplay() {
   return 0;
 }
 
+// ============ Recent-results history (localStorage, last 5) ============
+function getHistory() {
+  try {
+    const raw = localStorage.getItem('homerow-history');
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function pushHistory(entry) {
+  try {
+    const hist = getHistory();
+    hist.unshift(entry);
+    const trimmed = hist.slice(0, 5);
+    localStorage.setItem('homerow-history', JSON.stringify(trimmed));
+    return trimmed;
+  } catch (e) {
+    return [];
+  }
+}
+
 // ============ Keyboard heatmap ============
 const KB_ROWS = [
   ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
@@ -259,6 +281,8 @@ const bestBadge = document.getElementById('bestBadge');
 const streakLine = document.getElementById('streakLine');
 const heatmapWrap = document.getElementById('heatmapWrap');
 const keyboardEl = document.getElementById('keyboard');
+const historyRow = document.getElementById('historyRow');
+const historyChips = document.getElementById('historyChips');
 
 if (passageEl) {
   // ============ State ============
@@ -276,6 +300,7 @@ if (passageEl) {
   let lastAccShown = 100;
   let wpmMilestoneHit = false;
   let accMilestoneHit = false;
+  let tenSecMilestoneHit = false;
   let countdownActive = false;
   let countdownTimer = null;
 
@@ -422,10 +447,17 @@ if (passageEl) {
       timeStat.textContent = Math.ceil(remaining);
 
       const warning = remaining <= 5 && remaining > 0;
+      const critical = remaining <= 3 && remaining > 0;
       timeStat.classList.toggle('warning', warning);
+      timeStat.classList.toggle('critical', critical);
+      if (!tenSecMilestoneHit && remaining <= 10 && duration > 10) {
+        tenSecMilestoneHit = true;
+        pulseMilestone(timeStat);
+      }
       if (timeProgressFill) {
         timeProgressFill.style.width = Math.max(0, (remaining / duration) * 100) + '%';
         timeProgressFill.classList.toggle('warning', warning);
+        timeProgressFill.classList.toggle('critical', critical);
       }
 
       const stats = computeStats(hiddenInput.value, target, elapsed);
@@ -449,7 +481,7 @@ if (passageEl) {
 
   function drawSparkline() {
     if (!sparkline || wpmSamples.length < 2) return;
-    const w = 500, h = 60;
+    const w = 500, h = 70;
     const max = Math.max(...wpmSamples, 10);
     const pts = wpmSamples.map((v, i) => {
       const x = (i / (wpmSamples.length - 1)) * w;
@@ -501,6 +533,24 @@ if (passageEl) {
 
     renderHeatmap(keyboardEl, heatmapWrap, keyErrorCounts);
 
+    const hist = pushHistory({
+      wpm: Math.round(stats.netWPM),
+      accuracy: Math.round(stats.accuracy),
+      mode,
+      duration
+    });
+    if (historyRow && historyChips) {
+      if (hist.length > 1) {
+        historyChips.innerHTML = hist
+          .slice(1)
+          .map((h) => `<span class="history-chip">${h.wpm}<small>/${h.accuracy}%</small></span>`)
+          .join('');
+        historyRow.hidden = false;
+      } else {
+        historyRow.hidden = true;
+      }
+    }
+
     setState('Finished');
     setControlsQuiet(false);
 
@@ -508,8 +558,8 @@ if (passageEl) {
     passageEl.classList.add('blurred');
     typeZone.classList.remove('focused');
     typeZone.classList.remove('active-test');
-    timeStat.classList.remove('warning');
-    if (timeProgressFill) timeProgressFill.classList.remove('warning');
+    timeStat.classList.remove('warning', 'critical');
+    if (timeProgressFill) timeProgressFill.classList.remove('warning', 'critical');
     if (caretEl) caretEl.style.opacity = '0';
     focusHint.hidden = true;
     hiddenInput.blur();
@@ -527,20 +577,22 @@ if (passageEl) {
     lastAccShown = 100;
     wpmMilestoneHit = false;
     accMilestoneHit = false;
+    tenSecMilestoneHit = false;
     target = buildTarget(mode, duration);
     hiddenInput.value = '';
     passageEl.scrollTop = 0;
     timeStat.textContent = duration;
-    timeStat.classList.remove('warning');
+    timeStat.classList.remove('warning', 'critical');
     wpmStat.textContent = '0';
     accStat.textContent = '100%';
-    if (timeProgressFill) { timeProgressFill.style.width = '100%'; timeProgressFill.classList.remove('warning'); }
+    if (timeProgressFill) { timeProgressFill.style.width = '100%'; timeProgressFill.classList.remove('warning', 'critical'); }
     if (sparkline) sparkline.innerHTML = '';
     resultsCard.classList.remove('show');
     passageEl.classList.remove('blurred');
     if (bestBadge) bestBadge.hidden = true;
     if (streakLine) streakLine.hidden = true;
     if (heatmapWrap) heatmapWrap.hidden = true;
+    if (historyRow) historyRow.hidden = true;
     setState('Ready');
     setControlsQuiet(false);
     cancelCountdown();
@@ -647,6 +699,20 @@ if (passageEl) {
     if ((e.key === 'r' || e.key === 'R') && (finished || document.activeElement !== hiddenInput)) {
       e.preventDefault();
       reset();
+      return;
+    }
+    if (document.activeElement === hiddenInput) return;
+
+    if (e.code === 'Space' || e.key === 'Enter') {
+      e.preventDefault();
+      if (finished) reset();
+      hiddenInput.focus({ preventScroll: true });
+      return;
+    }
+    const durationMap = { '1': '15', '2': '30', '3': '60', '4': '120' };
+    if (durationMap[e.key] && !running) {
+      const btn = document.querySelector(`.duration-btn[data-duration="${durationMap[e.key]}"]`);
+      if (btn) btn.click();
     }
   });
 

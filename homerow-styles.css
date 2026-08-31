@@ -4,6 +4,7 @@
   --panel-raised: #242B36;
   --ink: #C7CBD1;
   --muted: #6B7280;
+  --pending: #9BA3AF;
   --line: #2C333F;
   --correct: #F5C34E;
   --error: #F2745C;
@@ -95,9 +96,11 @@ main { max-width: 900px; margin: 0 auto; padding: 0 32px; }
   font-family: var(--mono); font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted);
 }
 .state-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background .2s ease, box-shadow .2s ease; }
-.state-dot.typing { background: var(--correct); box-shadow: 0 0 6px rgba(245,195,78,.7); animation: dotPulse 1.2s ease-in-out infinite; }
+.state-dot.starting { background: var(--correct); box-shadow: 0 0 6px rgba(245,195,78,.6); }
+.state-dot.running { background: var(--correct); box-shadow: 0 0 6px rgba(245,195,78,.7); animation: dotPulse 1.2s ease-in-out infinite; }
 .state-dot.finished { background: var(--cursor); box-shadow: 0 0 6px rgba(251,247,236,.6); }
-#stateText.typing { color: var(--correct); }
+#stateText.starting { color: var(--correct); }
+#stateText.running { color: var(--correct); }
 #stateText.finished { color: var(--cursor); }
 @keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
 
@@ -126,8 +129,8 @@ main { max-width: 900px; margin: 0 auto; padding: 0 32px; }
 }
 .passage.blurred { filter: blur(4px); opacity: .5; }
 .passage .char { transition: color .12s ease, opacity .2s ease, background .12s ease; }
-.passage .char.pending { color: var(--muted); }
-.passage .char.pending.far { opacity: .4; }
+.passage .char.pending { color: var(--pending); }
+.passage .char.pending.far { opacity: .62; }
 .passage .char.correct { color: var(--correct); text-shadow: 0 0 10px rgba(245,195,78,.35); }
 .passage .char.incorrect { color: var(--error); background: rgba(242,116,92,.16); border-radius: 2px; text-shadow: 0 0 10px rgba(242,116,92,.3); }
 .passage .char.incorrect.flash { animation: flashError .35s ease; }

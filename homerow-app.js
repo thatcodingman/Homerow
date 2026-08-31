@@ -299,10 +299,10 @@ if (passageEl) {
   function setState(label) {
     if (!stateText || !stateDot) return;
     stateText.textContent = label;
-    stateText.classList.remove('typing', 'finished');
-    stateDot.classList.remove('typing', 'finished');
+    stateText.classList.remove('starting', 'running', 'finished');
+    stateDot.classList.remove('starting', 'running', 'finished');
     const cls = label.toLowerCase();
-    if (cls === 'typing' || cls === 'finished') {
+    if (cls === 'starting' || cls === 'running' || cls === 'finished') {
       stateText.classList.add(cls);
       stateDot.classList.add(cls);
     }
@@ -371,9 +371,10 @@ if (passageEl) {
   function startTimer() {
     running = true;
     startTime = Date.now();
-    setState('Typing');
+    setState('Starting');
     setControlsQuiet(true);
     typeZone.classList.add('active-test');
+    setTimeout(() => { if (running) setState('Running'); }, 220);
     timerInterval = setInterval(() => {
       const elapsed = (Date.now() - startTime) / 1000;
       const remaining = Math.max(0, duration - elapsed);

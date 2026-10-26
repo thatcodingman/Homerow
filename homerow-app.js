@@ -60,8 +60,25 @@ function generatePunctuationPassage(count) {
   return text;
 }
 
+let drillKeys = null; // letters to practice, set by the "Drill my weak keys" button
+
+function generateDrillPassage(count) {
+  let pool = WORDS.filter((w) => drillKeys.some((k) => w.includes(k)));
+  if (pool.length < 6) pool = WORDS;
+  const out = [];
+  let prev = '';
+  for (let i = 0; i < count; i++) {
+    let w = pool[Math.floor(Math.random() * pool.length)];
+    if (w === prev && pool.length > 1) w = pool[Math.floor(Math.random() * pool.length)];
+    out.push(w);
+    prev = w;
+  }
+  return out.join(' ');
+}
+
 function buildTarget(mode, duration) {
   const wordCount = Math.max(60, duration * 6);
+  if (drillKeys) return generateDrillPassage(wordCount);
   if (mode === 'quotes') return generateQuotePassage(wordCount * 5.5);
   if (mode === 'punctuation') return generatePunctuationPassage(wordCount);
   return generatePassage(wordCount);
@@ -135,7 +152,10 @@ function playClick() {
 function getBests() {
   try {
     const raw = localStorage.getItem('homerow-bests');
-    return raw ? JSON.parse(raw) : {};
+    const o = raw ? JSON.parse(raw) : {};
+    const clean = {};
+    if (o && typeof o === 'object') for (const k in o) if (Number.isFinite(o[k])) clean[k] = o[k];
+    return clean;
   } catch (e) {
     return {};
   }
@@ -197,7 +217,10 @@ function currentStreakDisplay() {
 function getHistory() {
   try {
     const raw = localStorage.getItem('homerow-history');
-    return raw ? JSON.parse(raw) : [];
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr)
+      ? arr.filter((h) => h && Number.isFinite(h.wpm) && Number.isFinite(h.accuracy))
+      : [];
   } catch (e) {
     return [];
   }
@@ -306,6 +329,8 @@ const statBest = document.getElementById('statBest');
 const statAcc = document.getElementById('statAcc');
 const statSpark = document.getElementById('statSpark');
 const clearDataBtn = document.getElementById('clearDataBtn');
+const drillBtn = document.getElementById('drillBtn');
+const drillNote = document.getElementById('drillNote');
 const sizeBtns = document.querySelectorAll('.size-btn');
 
 if (passageEl) {
@@ -326,6 +351,7 @@ if (passageEl) {
   let lenSamples = [];
   let lastTypedLength = 0;
   let keyErrorCounts = {};
+  let lastWeakKeys = [];
   let lastWpmShown = 0;
   let lastAccShown = 100;
   let wpmMilestoneHit = false;
@@ -578,10 +604,15 @@ if (passageEl) {
     resultConsistency.textContent = computeRateConsistency(lenSamples) + '%';
     resultChars.textContent = `${stats.correct} / ${stats.total}`;
 
+    const wasDrill = !!drillKeys;
+    if (wasDrill) {
+      if (bestBadge) { bestBadge.textContent = 'Drill session: not counted toward your records'; bestBadge.hidden = false; }
+    } else {
     const { best, isNew } = updateBest(duration, Math.round(stats.netWPM));
     if (bestBadge) {
       bestBadge.textContent = isNew ? 'New personal best!' : `Personal best at ${duration}s: ${best} WPM`;
       bestBadge.hidden = false;
+    }
     }
 
     const streakCount = recordStreak();
@@ -603,8 +634,14 @@ if (passageEl) {
     }
 
     renderHeatmap(keyboardEl, heatmapWrap, keyErrorCounts);
+    const weak = Object.entries(keyErrorCounts).sort((a, b) => b[1] - a[1]).slice(0, 3).map((e) => e[0]);
+    lastWeakKeys = weak;
+    if (drillBtn) {
+      drillBtn.hidden = weak.length === 0;
+      drillBtn.textContent = weak.length ? `Drill my weak keys (${weak.join(' ').toUpperCase()})` : 'Drill my weak keys';
+    }
 
-    const hist = pushHistory({
+    const hist = wasDrill ? getHistory() : pushHistory({
       wpm: Math.round(stats.netWPM),
       accuracy: Math.round(stats.accuracy),
       mode,
@@ -652,6 +689,7 @@ if (passageEl) {
     accMilestoneHit = false;
     tenSecMilestoneHit = false;
     target = buildTarget(mode, duration);
+    if (drillNote) drillNote.hidden = !drillKeys;
     hiddenInput.value = '';
     passageEl.scrollTop = 0;
     timeStat.textContent = duration;
@@ -692,6 +730,7 @@ if (passageEl) {
       durationBtns.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       duration = parseInt(btn.dataset.duration, 10);
+      drillKeys = null;
       reset();
       if (e.detail > 0) btn.blur();
     });
@@ -702,12 +741,24 @@ if (passageEl) {
       modeBtns.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       mode = btn.dataset.mode;
+      drillKeys = null;
       reset();
       if (e.detail > 0) btn.blur();
     });
   });
 
   restartBtn.addEventListener('click', reset);
+
+  if (drillBtn) drillBtn.addEventListener('click', () => {
+    if (!lastWeakKeys.length) return;
+    drillKeys = lastWeakKeys.slice();
+    reset();
+    hiddenInput.focus();
+  });
+  if (drillNote) {
+    const exit = drillNote.querySelector('button');
+    if (exit) exit.addEventListener('click', () => { drillKeys = null; reset(); hiddenInput.focus(); });
+  }
 
   function copyText(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);

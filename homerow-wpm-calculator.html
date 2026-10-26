@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-HXKYZ1HK0V"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-HXKYZ1HK0V');
+</script>
+<title>WPM Calculator: Words Per Minute and Accuracy | Home Row</title>
+<meta name="description" content="Free WPM calculator: enter characters typed, time, and errors to get your net WPM, raw WPM, characters per minute, and accuracy instantly. Runs in your browser.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Home Row">
+<meta property="og:url" content="https://usehomerow.com/homerow-wpm-calculator.html">
+<meta property="og:title" content="WPM Calculator: Words Per Minute and Accuracy | Home Row">
+<meta property="og:description" content="Free WPM calculator: enter characters typed, time, and errors to get your net WPM, raw WPM, characters per minute, and accuracy instantly. Runs in your browser.">
+<meta property="og:image" content="https://usehomerow.com/homerow-og.png">
+<meta property="og:image:alt" content="Home Row typing speed test showing a color-coded passage and live WPM">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WPM Calculator: Words Per Minute and Accuracy | Home Row">
+<meta name="twitter:description" content="Free WPM calculator: enter characters typed, time, and errors to get your net WPM, raw WPM, characters per minute, and accuracy instantly. Runs in your browser.">
+<link rel="canonical" href="https://usehomerow.com/homerow-wpm-calculator.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Home Row WPM Calculator",
+  "url": "https://usehomerow.com/homerow-wpm-calculator.html",
+  "description": "Free WPM calculator: enter characters typed, time, and errors to get your net WPM, raw WPM, characters per minute, and accuracy instantly. Runs in your browser.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home Row",
+      "item": "https://usehomerow.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "WPM Calculator",
+      "item": "https://usehomerow.com/homerow-wpm-calculator.html"
+    }
+  ]
+}
+</script>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#14181F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Red+Hat+Mono:wght@400;500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="homerow-styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="nav">
+  <a href="index.html" class="wordmark">Home Row</a>
+  <nav class="nav-links" aria-label="Main">
+    <a href="index.html">Home</a>
+    <a href="homerow-about.html">About</a>
+    <a href="homerow-faq.html">FAQ</a>
+    <a href="homerow-contact.html">Contact</a>
+    <a href="homerow-guides.html">Guides</a>
+  </nav>
+</header>
+
+<main id="main">
+  <div class="legal">
+    <h1>WPM calculator</h1>
+    <p class="updated">Words per minute, accuracy, and characters per minute</p>
+
+    <p>Typed something outside Home Row and want to know your speed? Enter what you typed and how long it took. Nothing is sent anywhere; the math runs in your browser. For a live measurement, <a href="index.html">take the typing test</a>.</p>
+
+    <form class="calc" id="calcForm" onsubmit="return false">
+      <label>Characters typed (including spaces)<input type="number" id="cChars" min="0" inputmode="numeric" placeholder="e.g. 1500"></label>
+      <label>Time (minutes)<input type="number" id="cMin" min="0" step="1" inputmode="numeric" placeholder="e.g. 5"></label>
+      <label>Time (extra seconds)<input type="number" id="cSec" min="0" max="59" step="1" inputmode="numeric" placeholder="e.g. 30"></label>
+      <label>Mistakes (characters wrong)<input type="number" id="cErr" min="0" inputmode="numeric" placeholder="e.g. 20"></label>
+    </form>
+    <div class="calc-out" id="calcOut" aria-live="polite">Enter characters and a time to see your result.</div>
+
+    <h2>How the calculation works</h2>
+    <ul>
+      <li><strong>Raw WPM</strong> = characters typed ÷ 5 ÷ minutes</li>
+      <li><strong>Net WPM</strong> = (characters typed − mistakes) ÷ 5 ÷ minutes</li>
+      <li><strong>Accuracy</strong> = (characters typed − mistakes) ÷ characters typed</li>
+      <li><strong>Characters per minute (CPM)</strong> = characters typed ÷ minutes</li>
+    </ul>
+    <p>One "word" is standardized as 5 characters, spaces included, so WPM does not depend on how long your words happen to be. This matches how Home Row scores its own test; the <a href="homerow-faq.html">FAQ</a> has the details.</p>
+
+    <h2>Counting words instead of characters</h2>
+    <p>If you only know the word count, multiply it by 5 to estimate characters. A 300-word document typed in 6 minutes is about 1,500 characters, or roughly 50 WPM before subtracting mistakes.</p>
+
+    <h2>What is a good result?</h2>
+    <p>Around 40 WPM is average and 60 or more is good. See <a href="homerow-good-typing-speed.html">what is a good typing speed</a> for the full benchmarks, or <a href="homerow-how-to-type-faster.html">how to type faster</a> to improve.</p>
+    <script src="homerow-calc.js" defer></script>
+  </div>
+</main>
+
+<footer>
+<p class="network-links">Typing tests: <a href="homerow-30-second-typing-test.html">30 second</a> · <a href="homerow-1-minute-typing-test.html">1 minute</a> · <a href="homerow-2-minute-typing-test.html">2 minute</a> · <a href="homerow-3-minute-typing-test.html">3 minute</a> · <a href="homerow-5-minute-typing-test.html">5 minute</a></p>
+<p class="network-links">Guides: <a href="homerow-how-to-type-faster.html">How to type faster</a> · <a href="homerow-good-typing-speed.html">Good typing speed</a> · <a href="homerow-typing-accuracy.html">Typing accuracy</a> · <a href="homerow-type-without-looking.html">Type without looking</a> · <a href="homerow-typing-practice-routine.html">Practice routine</a> · <a href="homerow-typing-posture-ergonomics.html">Posture</a> · <a href="homerow-wpm-calculator.html">WPM calculator</a></p>
+<p class="network-links">More free tools from us: <a href="https://usequietzone.com">Quiet Zone</a> · <a href="https://quantizeapp.com">Quantize</a> · <a href="https://monospace.tools">monospace</a> · <a href="https://crossovercalc.app">Crossover</a></p>
+  <div class="foot-inner">
+    <nav aria-label="Footer">
+      <a href="homerow-about.html">About</a>
+      <a href="homerow-faq.html">FAQ</a>
+      <a href="homerow-contact.html">Contact</a>
+      <a href="homerow-guides.html">Guides</a>
+      <a href="homerow-terms.html">Terms</a>
+      <a href="homerow-privacy.html">Privacy</a>
+    </nav>
+    <p>© 2026 Home Row</p>
+  </div>
+</footer>
+
+</body>
+</html>

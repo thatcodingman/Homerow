@@ -399,3 +399,13 @@ body.size-l .passage { font-size: 1.7rem; }
     scroll-behavior: auto !important;
   }
 }
+
+.drill-btn { margin-top: 14px; }
+.drill-note { margin-bottom: 8px; color: var(--cursor); }
+.drill-note[hidden], .drill-btn[hidden] { display: none; }
+
+.calc { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 18px 0; }
+.calc label { display: flex; flex-direction: column; gap: 6px; font-family: var(--mono); font-size: .78rem; color: var(--muted); }
+.calc input { font-family: var(--mono); font-size: 1rem; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
+.calc-out { font-family: var(--mono); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; margin-bottom: 24px; color: var(--muted); }
+.calc-out strong { color: var(--correct); font-size: 1.3rem; }

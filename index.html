@@ -20,6 +20,7 @@
 <meta property="og:title" content="Home Row — Free Typing Speed Test (WPM Test)">
 <meta property="og:description" content="Get your live WPM, accuracy, and a mistake heatmap in 15-120 seconds. No sign-up required.">
 <meta property="og:image" content="https://usehomerow.com/homerow-og.png">
+<meta property="og:image:alt" content="Home Row typing speed test showing a color-coded passage and live WPM">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -67,8 +68,24 @@
   ]
 }
 </script>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' fill='%2314181F'/><rect x='6' y='18' width='6' height='6' fill='%23E8B84B'/><rect x='14' y='18' width='6' height='6' fill='%23E8B84B'/><rect x='22' y='18' width='6' height='6' fill='%23E8B84B'/></svg>">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Home Row",
+  "alternateName": [
+    "HomeRow",
+    "Home Row Typing Test"
+  ],
+  "url": "https://usehomerow.com/"
+}
+</script>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#14181F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Red+Hat+Mono:wght@400;500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="homerow-styles.css">
 </head>
@@ -86,10 +103,12 @@
 
 <main>
   <section class="hero">
-    <p class="eyebrow">Typing test</p>
+    <p class="eyebrow">Free typing speed test</p>
     <h1>How fast are your hands, really?</h1>
     <p class="lead">Click the text below and start typing. Your pace, accuracy, and rhythm — tracked live, nothing uploaded anywhere.</p>
   </section>
+
+  <noscript><p class="tool-note">Home Row needs JavaScript to run the typing test. Please enable JavaScript in your browser to take the test.</p></noscript>
 
   <div class="mode-row">
     <button class="mode-btn active" data-mode="words">Words</button>
@@ -221,6 +240,7 @@
 </main>
 
 <footer>
+<p class="network-links">Guides: <a href="homerow-how-to-type-faster.html">How to type faster</a> · <a href="homerow-good-typing-speed.html">Good typing speed</a> · <a href="homerow-typing-accuracy.html">Typing accuracy</a> · <a href="homerow-type-without-looking.html">Type without looking</a></p>
 <p class="network-links">More free tools from us: <a href="https://usequietzone.com">Quiet Zone</a> · <a href="https://quantizeapp.com">Quantize</a> · <a href="https://monospace.tools">monospace</a> · <a href="https://crossovercalc.app">Crossover</a></p>
   <div class="foot-inner">
     <nav>

@@ -29,6 +29,17 @@ function generatePassage(count) {
   return out.join(' ');
 }
 
+function generateNumbersPassage(count) {
+  const out = [];
+  for (let i = 0; i < count; i++) {
+    const len = 2 + Math.floor(Math.random() * 4);
+    let g = '';
+    for (let k = 0; k < len; k++) g += Math.floor(Math.random() * 10);
+    out.push(g);
+  }
+  return out.join(' ');
+}
+
 function generateQuotePassage(minLength) {
   let text = '';
   while (text.length < minLength) {
@@ -81,6 +92,7 @@ function buildTarget(mode, duration) {
   if (drillKeys) return generateDrillPassage(wordCount);
   if (mode === 'quotes') return generateQuotePassage(wordCount * 5.5);
   if (mode === 'punctuation') return generatePunctuationPassage(wordCount);
+  if (mode === 'numbers') return generateNumbersPassage(wordCount);
   return generatePassage(wordCount);
 }
 
@@ -161,15 +173,19 @@ function getBests() {
   }
 }
 
-function updateBest(duration, wpm) {
+// Words-mode bests keep the original plain-duration key so saved records carry over.
+function bestKey(mode, duration) { return mode === 'words' ? String(duration) : mode + '-' + duration; }
+
+function updateBest(mode, duration, wpm) {
   try {
+    const key = bestKey(mode, duration);
     const bests = getBests();
-    const isNew = !bests[duration] || wpm > bests[duration];
+    const isNew = !bests[key] || wpm > bests[key];
     if (isNew) {
-      bests[duration] = wpm;
+      bests[key] = wpm;
       localStorage.setItem('homerow-bests', JSON.stringify(bests));
     }
-    return { best: bests[duration], isNew };
+    return { best: bests[key], isNew };
   } catch (e) {
     return { best: wpm, isNew: false };
   }
@@ -338,7 +354,7 @@ if (passageEl) {
   const presetDuration = parseInt(document.body.dataset.duration, 10);
   const presetMode = document.body.dataset.mode;
   let duration = [15, 30, 60, 120, 180, 300].includes(presetDuration) ? presetDuration : 30;
-  let mode = ['words', 'quotes', 'punctuation'].includes(presetMode) ? presetMode : 'words';
+  let mode = ['words', 'quotes', 'punctuation', 'numbers'].includes(presetMode) ? presetMode : 'words';
   durationBtns.forEach((b) => b.classList.toggle('active', parseInt(b.dataset.duration, 10) === duration));
   modeBtns.forEach((b) => b.classList.toggle('active', b.dataset.mode === mode));
   let target = buildTarget(mode, duration);
@@ -608,9 +624,9 @@ if (passageEl) {
     if (wasDrill) {
       if (bestBadge) { bestBadge.textContent = 'Drill session: not counted toward your records'; bestBadge.hidden = false; }
     } else {
-    const { best, isNew } = updateBest(duration, Math.round(stats.netWPM));
+    const { best, isNew } = updateBest(mode, duration, Math.round(stats.netWPM));
     if (bestBadge) {
-      bestBadge.textContent = isNew ? 'New personal best!' : `Personal best at ${duration}s: ${best} WPM`;
+      bestBadge.textContent = isNew ? 'New personal best!' : `Personal best, ${mode} ${duration}s: ${best} WPM`;
       bestBadge.hidden = false;
     }
     }

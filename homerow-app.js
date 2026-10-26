@@ -348,6 +348,7 @@ const clearDataBtn = document.getElementById('clearDataBtn');
 const drillBtn = document.getElementById('drillBtn');
 const drillNote = document.getElementById('drillNote');
 const sizeBtns = document.querySelectorAll('.size-btn');
+const themeBtn = document.getElementById('themeBtn');
 
 if (passageEl) {
   // ============ State ============
@@ -600,7 +601,7 @@ if (passageEl) {
       const y = h - (v / max) * h;
       return `${x.toFixed(1)},${y.toFixed(1)}`;
     });
-    sparkline.innerHTML = `<polyline points="${pts.join(' ')}" fill="none" stroke="#F5C34E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 4px rgba(245,195,78,.5));" />`;
+    sparkline.innerHTML = `<polyline points="${pts.join(' ')}" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 4px rgba(245,195,78,.5));" />`;
   }
 
   function finish() {
@@ -911,7 +912,7 @@ if (passageEl) {
         const w = 500, h = 56, max = Math.max(...series, 10), min = Math.min(...series);
         const span = Math.max(1, max - min);
         const pts = series.map((v, i) => `${((i / (series.length - 1)) * w).toFixed(1)},${(h - 4 - ((v - min) / span) * (h - 8)).toFixed(1)}`);
-        statSpark.innerHTML = `<polyline points="${pts.join(' ')}" fill="none" stroke="#F5C34E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />`;
+        statSpark.innerHTML = `<polyline points="${pts.join(' ')}" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />`;
       }
     }
     statsPanel.hidden = false;
@@ -966,6 +967,25 @@ if (passageEl) {
     try { localStorage.setItem('homerow-size', b.dataset.size); } catch (err) {}
     if (e.detail > 0) b.blur();
   }));
+
+  function applyTheme(light) {
+    if (light) document.documentElement.setAttribute('data-theme', 'light');
+    else document.documentElement.removeAttribute('data-theme');
+    if (themeBtn) {
+      themeBtn.textContent = light ? 'Dark mode' : 'Light mode';
+      themeBtn.setAttribute('aria-pressed', String(light));
+    }
+    const tc = document.querySelector('meta[name="theme-color"]');
+    if (tc) tc.setAttribute('content', light ? '#FAF6EA' : '#14181F');
+    lineHeightPx = 0;
+  }
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'light');
+  if (themeBtn) themeBtn.addEventListener('click', (e) => {
+    const light = document.documentElement.getAttribute('data-theme') !== 'light';
+    applyTheme(light);
+    try { localStorage.setItem('homerow-theme', light ? 'light' : 'dark'); } catch (err) {}
+    if (e.detail > 0) themeBtn.blur();
+  });
 
   renderStats();
   reset();

@@ -409,3 +409,30 @@ body.size-l .passage { font-size: 1.7rem; }
 .calc input { font-family: var(--mono); font-size: 1rem; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
 .calc-out { font-family: var(--mono); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; margin-bottom: 24px; color: var(--muted); }
 .calc-out strong { color: var(--correct); font-size: 1.3rem; }
+
+/* ===== Light theme (optional, remembered locally) ===== */
+html[data-theme="light"] {
+  --paper: #FAF6EA; --panel: #F1EBDA; --panel-raised: #E8E0CB; --ink: #2B2F36; --muted: #565D6B; --pending: #646B78;
+  --line: #D4CAB0; --correct: #7F5800; --error: #B3341D; --cursor: #14181F;
+}
+html[data-theme="light"] body { background: var(--paper); }
+html[data-theme="light"] .hero h1,
+html[data-theme="light"] .passage .char.correct,
+html[data-theme="light"] .passage .char.incorrect,
+html[data-theme="light"] .duration-btn.active,
+html[data-theme="light"] .stat .stat-value,
+html[data-theme="light"] .results-card .big-wpm,
+html[data-theme="light"] .state-dot,
+html[data-theme="light"] .results-card { text-shadow: none; box-shadow: none; }
+html[data-theme="light"] .passage { box-shadow: none; }
+html[data-theme="light"] .focus-hint, html[data-theme="light"] .passage.blurred + * { background: rgba(250,246,234,.8); text-shadow: none; }
+html[data-theme="light"] .passage .char.current { background: rgba(127,88,0,.2); box-shadow: 0 0 0 1px rgba(127,88,0,.45); }
+html[data-theme="light"] .key.heat-3, html[data-theme="light"] .key.heat-4 { color: #fff; }
+html[data-theme="light"] button.primary:hover, html[data-theme="light"] .mail-btn:hover { background: #5E4100; color: #fff; }
+.theme-btn { font-family: var(--mono); font-size: .72rem; background: var(--panel); color: var(--muted); border: 1px solid var(--line); border-radius: var(--radius); height: 28px; padding: 0 10px; cursor: pointer; }
+.theme-btn:hover { border-color: var(--correct); color: var(--correct); }
+html[data-theme="light"] .focus-hint { animation: none; }
+html[data-theme="light"] .countdown { background: rgba(250,246,234,.75); text-shadow: none; }
+html[data-theme="light"] p a, html[data-theme="light"] li a, html[data-theme="light"] .legal a { text-decoration: underline; }
+html[data-theme="light"] .mail-btn, html[data-theme="light"] .nav-links a, html[data-theme="light"] .wordmark, html[data-theme="light"] .hub-list a { text-decoration: none; }
+.stats-panel svg { color: var(--correct); }

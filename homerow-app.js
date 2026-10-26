@@ -99,6 +99,17 @@ function computeConsistency(samples) {
   return Math.round(Math.max(0, Math.min(100, 100 - (stdev / mean) * 100)));
 }
 
+// Consistency from second-to-second pace: compares typing speed across non-overlapping
+// 1-second windows (4 ticks x 250ms), skipping the first second while the typist warms up.
+function computeRateConsistency(lens) {
+  const WINDOW = 4;
+  const rates = [];
+  for (let i = WINDOW * 2; i < lens.length; i += WINDOW) {
+    rates.push(((lens[i] - lens[i - WINDOW]) / 5) * 60);
+  }
+  return computeConsistency(rates);
+}
+
 // ============ Synthesized key-click sound (no audio file needed) ============
 let audioCtx = null;
 function playClick() {
@@ -154,13 +165,18 @@ function getStreakData() {
   }
 }
 
-function dayKey(d) { return d.toISOString().slice(0, 10); }
+function dayKey(d) {
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+function yesterdayDate() { const d = new Date(); d.setDate(d.getDate() - 1); return d; }
 
 function recordStreak() {
   const data = getStreakData();
   const today = dayKey(new Date());
   if (data.lastDate === today) return data.count;
-  const yesterday = dayKey(new Date(Date.now() - 86400000));
+  const yesterday = dayKey(yesterdayDate());
   const newCount = data.lastDate === yesterday ? data.count + 1 : 1;
   try {
     localStorage.setItem('homerow-streak', JSON.stringify({ count: newCount, lastDate: today }));
@@ -172,7 +188,7 @@ function currentStreakDisplay() {
   const data = getStreakData();
   if (!data.lastDate) return 0;
   const today = dayKey(new Date());
-  const yesterday = dayKey(new Date(Date.now() - 86400000));
+  const yesterday = dayKey(yesterdayDate());
   if (data.lastDate === today || data.lastDate === yesterday) return data.count;
   return 0;
 }
@@ -293,7 +309,9 @@ if (passageEl) {
   let timerInterval = null;
   let running = false;
   let finished = false;
+  let finishedAt = 0;
   let wpmSamples = [];
+  let lenSamples = [];
   let lastTypedLength = 0;
   let keyErrorCounts = {};
   let lastWpmShown = 0;
@@ -473,6 +491,7 @@ if (passageEl) {
       lastAccShown = roundedAcc;
 
       wpmSamples.push(roundedWpm);
+      lenSamples.push(hiddenInput.value.length);
       drawSparkline();
 
       if (remaining <= 0) finish();
@@ -494,6 +513,7 @@ if (passageEl) {
   function finish() {
     if (finished) return;
     finished = true;
+    finishedAt = Date.now();
     running = false;
     clearInterval(timerInterval);
     const elapsed = (Date.now() - startTime) / 1000;
@@ -504,7 +524,7 @@ if (passageEl) {
     resultScore.textContent = Math.round(stats.score);
     resultRaw.textContent = Math.round(stats.rawWPM);
     resultErrors.textContent = stats.total - stats.correct;
-    resultConsistency.textContent = computeConsistency(wpmSamples) + '%';
+    resultConsistency.textContent = computeRateConsistency(lenSamples) + '%';
     resultChars.textContent = `${stats.correct} / ${stats.total}`;
 
     const { best, isNew } = updateBest(duration, Math.round(stats.netWPM));
@@ -571,6 +591,7 @@ if (passageEl) {
     finished = false;
     startTime = null;
     wpmSamples = [];
+    lenSamples = [];
     lastTypedLength = 0;
     keyErrorCounts = {};
     lastWpmShown = 0;
@@ -635,7 +656,7 @@ if (passageEl) {
   restartBtn.addEventListener('click', reset);
 
   shareBtn.addEventListener('click', () => {
-    const text = `${resultWPM.textContent} WPM at ${resultAccuracy.textContent} accuracy on Home Row — homerow.app`;
+    const text = `${resultWPM.textContent} WPM at ${resultAccuracy.textContent} accuracy on Home Row — https://usehomerow.com`;
     navigator.clipboard.writeText(text);
     const original = shareBtn.textContent;
     shareBtn.textContent = 'Copied';
@@ -673,6 +694,10 @@ if (passageEl) {
         ctx.fillStyle = '#FBF7EC';
         ctx.fillText('Home Row', 600, 560);
 
+        ctx.font = '500 22px "Red Hat Mono", monospace';
+        ctx.fillStyle = '#6B7280';
+        ctx.fillText('usehomerow.com', 600, 604);
+
         canvas.toBlob((blob) => {
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
@@ -694,6 +719,12 @@ if (passageEl) {
     if (e.key === 'Escape') {
       reset();
       hiddenInput.blur();
+      return;
+    }
+    // Grace period: a typist still mid-word when time runs out shouldn't instantly restart
+    // (and wipe the results) from a stray Space/Enter/R keystroke.
+    if (finished && Date.now() - finishedAt < 800) {
+      if (e.code === 'Space' || e.key === 'Enter') e.preventDefault();
       return;
     }
     if ((e.key === 'r' || e.key === 'R') && (finished || document.activeElement !== hiddenInput)) {

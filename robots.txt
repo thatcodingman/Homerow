@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://homerow.app/sitemap.xml
+Sitemap: https://usehomerow.com/sitemap.xml

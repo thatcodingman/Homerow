@@ -3,7 +3,7 @@
   --panel: #1D232C;
   --panel-raised: #242B36;
   --ink: #C7CBD1;
-  --muted: #6B7280;
+  --muted: #9099A8;
   --pending: #ABB3BF;
   --line: #2C333F;
   --correct: #F5C34E;
@@ -184,7 +184,7 @@ main { max-width: 900px; margin: 0 auto; padding: 0 32px; }
 }
 
 .hidden-input {
-  position: fixed; top: 0; left: 0; opacity: 0; pointer-events: none; width: 1px; height: 1px; border: none;
+  position: fixed; top: 0; left: 0; opacity: 0; pointer-events: none; width: 1px; height: 1px; border: none; font-size: 16px;
 }
 
 .focus-hint {
@@ -351,6 +351,8 @@ footer p { color: var(--muted); font-size: .76rem; margin: 0; font-family: var(-
 .seo-content strong { color: var(--cursor); }
 .seo-content a { color: var(--correct); }
 .seo-content .faq-list { margin-top: 8px; }
+
+.duration-row { flex-wrap: wrap; }
 
 @media (max-width: 640px) {
   header.nav { padding: 16px; flex-wrap: wrap; gap: 10px; }

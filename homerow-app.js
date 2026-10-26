@@ -302,8 +302,12 @@ const historyChips = document.getElementById('historyChips');
 
 if (passageEl) {
   // ============ State ============
-  let duration = 30;
-  let mode = 'words';
+  const presetDuration = parseInt(document.body.dataset.duration, 10);
+  const presetMode = document.body.dataset.mode;
+  let duration = [15, 30, 60, 120, 180, 300].includes(presetDuration) ? presetDuration : 30;
+  let mode = ['words', 'quotes', 'punctuation'].includes(presetMode) ? presetMode : 'words';
+  durationBtns.forEach((b) => b.classList.toggle('active', parseInt(b.dataset.duration, 10) === duration));
+  modeBtns.forEach((b) => b.classList.toggle('active', b.dataset.mode === mode));
   let target = buildTarget(mode, duration);
   let startTime = null;
   let timerInterval = null;
@@ -398,7 +402,7 @@ if (passageEl) {
 
   function updateCaret() {
     if (!caretEl) return;
-    const cur = passageEl.querySelector('.char.current');
+    const cur = spans[hiddenInput.value.length] || null;
     if (!cur) { caretEl.style.opacity = '0'; return; }
     const top = passageEl.offsetTop + cur.offsetTop - passageEl.scrollTop;
     const left = passageEl.offsetLeft + cur.offsetLeft;
@@ -406,34 +410,73 @@ if (passageEl) {
     caretEl.style.height = cur.offsetHeight + 'px';
   }
 
+  // Line height is cached (reading computed style every keystroke forces a style flush
+  // across the whole passage); it is re-read after a resize, when the font size can change.
+  let lineHeightPx = 0;
+  window.addEventListener('resize', () => { lineHeightPx = 0; });
   function scrollToCurrentLine(cur) {
     if (!cur) return;
-    const lineHeight = parseFloat(getComputedStyle(passageEl).lineHeight) || 41;
-    passageEl.scrollTop = Math.max(0, cur.offsetTop - lineHeight);
+    if (!lineHeightPx) lineHeightPx = parseFloat(getComputedStyle(passageEl).lineHeight) || 41;
+    const want = Math.max(0, cur.offsetTop - lineHeightPx);
+    if (passageEl.scrollTop !== want) passageEl.scrollTop = want;
+  }
+
+  // Incremental rendering: the passage is built once per target, and each keystroke only
+  // touches the letters whose state can have changed (a window around the cursor), so the
+  // cost per keystroke stays flat no matter how long the test is.
+  let spans = [];
+  let prevCls = [];
+  let builtTarget = null;
+  let lastTyped = null;
+  let lastCursor = 0;
+  let lastWordStart = 0;
+  let lastWordEnd = 0;
+
+  function buildPassage() {
+    let html = '';
+    for (let i = 0; i < target.length; i++) {
+      const ch = target[i] === ' ' ? ' ' : escapeChar(target[i]);
+      html += `<span class="char pending">${ch}</span>`;
+    }
+    passageEl.innerHTML = html;
+    spans = Array.from(passageEl.children);
+    prevCls = new Array(target.length).fill('pending');
+    builtTarget = target;
+    lastTyped = null;
   }
 
   function renderPassage() {
+    if (builtTarget !== target) buildPassage();
     const typed = hiddenInput.value;
-    const states = diffStates(typed, target);
     const cursor = typed.length;
+    const n = target.length;
     let wordStart = cursor, wordEnd = cursor;
     while (wordStart > 0 && target[wordStart - 1] !== ' ') wordStart--;
-    while (wordEnd < target.length && target[wordEnd] !== ' ') wordEnd++;
+    while (wordEnd < n && target[wordEnd] !== ' ') wordEnd++;
 
-    let html = '';
-    for (let i = 0; i < target.length; i++) {
-      let cls = states[i];
-      if (i === cursor) cls += ' current';
-      if (i >= wordStart && i < wordEnd && states[i] !== 'incorrect') cls += ' in-word';
-      if (states[i] === 'pending' && i - cursor > 120) cls += ' far';
-      if (states[i] === 'correct' && cursor - i > 60) cls += ' behind';
-      if (i === cursor - 1 && states[i] === 'incorrect') cls += ' flash';
-      const ch = target[i] === ' ' ? ' ' : escapeChar(target[i]);
-      html += `<span class="char ${cls}">${ch}</span>`;
+    let lo = 0, hi = n;
+    if (lastTyped !== null) {
+      let d = 0;
+      const m = Math.min(lastTyped.length, typed.length);
+      while (d < m && lastTyped[d] === typed[d]) d++;
+      lo = Math.max(0, Math.min(d, cursor - 62, lastCursor - 62, wordStart, lastWordStart));
+      hi = Math.min(n, Math.max(typed.length, lastTyped.length, cursor + 122, lastCursor + 122, wordEnd, lastWordEnd));
     }
-    passageEl.innerHTML = html;
-    const curEl = passageEl.querySelector('.char.current');
-    scrollToCurrentLine(curEl);
+    for (let i = lo; i < hi; i++) {
+      const state = i >= cursor ? 'pending' : (typed[i] === target[i] ? 'correct' : 'incorrect');
+      let cls = state;
+      if (i === cursor) cls += ' current';
+      if (i >= wordStart && i < wordEnd && state !== 'incorrect') cls += ' in-word';
+      if (state === 'pending' && i - cursor > 120) cls += ' far';
+      if (state === 'correct' && cursor - i > 60) cls += ' behind';
+      if (i === cursor - 1 && state === 'incorrect') cls += ' flash';
+      if (cls !== prevCls[i]) { spans[i].className = 'char ' + cls; prevCls[i] = cls; }
+    }
+    lastTyped = typed;
+    lastCursor = cursor;
+    lastWordStart = wordStart;
+    lastWordEnd = wordEnd;
+    scrollToCurrentLine(spans[cursor]);
     updateCaret();
   }
 
@@ -636,31 +679,51 @@ if (passageEl) {
   hiddenInput.addEventListener('blur', () => { if (!finished) { focusHint.hidden = false; typeZone.classList.remove('focused'); } });
 
   durationBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
       durationBtns.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       duration = parseInt(btn.dataset.duration, 10);
       reset();
+      if (e.detail > 0) btn.blur();
     });
   });
 
   modeBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
       modeBtns.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       mode = btn.dataset.mode;
       reset();
+      if (e.detail > 0) btn.blur();
     });
   });
 
   restartBtn.addEventListener('click', reset);
 
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
+    return new Promise((resolve, reject) => {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        ok ? resolve() : reject(new Error('copy failed'));
+      } catch (err) { reject(err); }
+    });
+  }
+
   shareBtn.addEventListener('click', () => {
     const text = `${resultWPM.textContent} WPM at ${resultAccuracy.textContent} accuracy on Home Row — https://usehomerow.com`;
-    navigator.clipboard.writeText(text);
     const original = shareBtn.textContent;
-    shareBtn.textContent = 'Copied';
-    setTimeout(() => { shareBtn.textContent = original; }, 1200);
+    copyText(text)
+      .then(() => { shareBtn.textContent = 'Copied'; })
+      .catch(() => { shareBtn.textContent = 'Copy failed'; })
+      .finally(() => { setTimeout(() => { shareBtn.textContent = original; }, 1400); });
   });
 
   if (saveImageBtn) {
@@ -721,6 +784,11 @@ if (passageEl) {
       hiddenInput.blur();
       return;
     }
+    // Never hijack keys from a focused control (buttons, links, the sound switch, FAQ summaries)
+    const tgt = e.target;
+    if (tgt !== hiddenInput && tgt && tgt.closest &&
+        tgt.closest('button, a, input, select, textarea, summary, label, [contenteditable="true"]')) return;
+
     // Grace period: a typist still mid-word when time runs out shouldn't instantly restart
     // (and wipe the results) from a stray Space/Enter/R keystroke.
     if (finished && Date.now() - finishedAt < 800) {
@@ -740,7 +808,7 @@ if (passageEl) {
       hiddenInput.focus({ preventScroll: true });
       return;
     }
-    const durationMap = { '1': '15', '2': '30', '3': '60', '4': '120' };
+    const durationMap = { '1': '15', '2': '30', '3': '60', '4': '120', '5': '180', '6': '300' };
     if (durationMap[e.key] && !running) {
       const btn = document.querySelector(`.duration-btn[data-duration="${durationMap[e.key]}"]`);
       if (btn) btn.click();

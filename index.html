@@ -13,19 +13,19 @@
 </script>
 <meta name="google-adsense-account" content="ca-pub-8828337552440063">
 <title>Home Row — Free Typing Speed Test (WPM Test), No Sign-Up</title>
-<meta name="description" content="Free typing speed test. Get your live WPM, accuracy, and a mistake heatmap in 15-120 seconds. No sign-up, no account, nothing you type ever leaves your browser.">
+<meta name="description" content="Free typing speed test. Get your live WPM, accuracy, and a mistake heatmap from 15 seconds to 5 minutes. No sign-up, nothing you type leaves your browser.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Home Row">
 <meta property="og:url" content="https://usehomerow.com/">
 <meta property="og:title" content="Home Row — Free Typing Speed Test (WPM Test)">
-<meta property="og:description" content="Get your live WPM, accuracy, and a mistake heatmap in 15-120 seconds. No sign-up required.">
+<meta property="og:description" content="Get your live WPM, accuracy, and a mistake heatmap in 15 seconds to 5 minutes. No sign-up required.">
 <meta property="og:image" content="https://usehomerow.com/homerow-og.png">
 <meta property="og:image:alt" content="Home Row typing speed test showing a color-coded passage and live WPM">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Home Row — Free Typing Speed Test (WPM Test)">
-<meta name="twitter:description" content="Get your live WPM, accuracy, and a mistake heatmap in 15-120 seconds. No sign-up required.">
+<meta name="twitter:description" content="Get your live WPM, accuracy, and a mistake heatmap in 15 seconds to 5 minutes. No sign-up required.">
 <link rel="canonical" href="https://usehomerow.com/">
 <script type="application/ld+json">
 {
@@ -93,7 +93,7 @@
 
 <header class="nav">
   <a href="index.html" class="wordmark">Home Row</a>
-  <nav class="nav-links">
+  <nav class="nav-links" aria-label="Main">
     <a href="homerow-about.html">About</a>
     <a href="homerow-faq.html">FAQ</a>
     <a href="homerow-contact.html">Contact</a>
@@ -121,6 +121,8 @@
     <button class="duration-btn active" data-duration="30">30s</button>
     <button class="duration-btn" data-duration="60">60s</button>
     <button class="duration-btn" data-duration="120">120s</button>
+    <button class="duration-btn" data-duration="180">180s</button>
+    <button class="duration-btn" data-duration="300">300s</button>
   </div>
 
   <div class="control-row">
@@ -151,14 +153,14 @@
     <div class="caret" id="caret"></div>
     <div class="countdown" id="countdown" hidden></div>
     <div class="focus-hint" id="focusHint">Click here to start typing</div>
-    <input type="text" class="hidden-input" id="hiddenInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <input type="text" class="hidden-input" id="hiddenInput" aria-label="Typing input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
   </div>
 
   <div class="sparkline-wrap">
     <svg id="sparkline" viewBox="0 0 500 70" preserveAspectRatio="none"></svg>
   </div>
 
-  <div class="results-card" id="resultsCard">
+  <div class="results-card" id="resultsCard" aria-live="polite">
     <p class="best-badge" id="bestBadge" hidden></p>
     <p class="streak-line" id="streakLine" hidden></p>
     <p class="big-wpm" id="resultWPM">0</p>
@@ -195,7 +197,9 @@
 
   <section class="seo-content" aria-labelledby="about-wpm-heading">
     <h2 id="about-wpm-heading">About the Home Row typing test</h2>
-    <p>Home Row measures your typing speed in <strong>words per minute (WPM)</strong> along with accuracy and consistency, using the same formula touch-typing tests have used for decades: every 5 correctly typed characters counts as one word. Pick a duration from 15 to 120 seconds, choose Words, Quotes, or Punctuation mode, and start typing — your pace updates live as you go.</p>
+    <p>Home Row measures your typing speed in <strong>words per minute (WPM)</strong> along with accuracy and consistency, using the same formula touch-typing tests have used for decades: every 5 correctly typed characters counts as one word. Pick a duration from 15 seconds to 5 minutes, choose Words, Quotes, or Punctuation mode, and start typing — your pace updates live as you go.</p>
+
+    <p>Prefer a set length? Try the <a href="homerow-30-second-typing-test.html">30 second</a>, <a href="homerow-1-minute-typing-test.html">1 minute</a>, <a href="homerow-2-minute-typing-test.html">2 minute</a>, <a href="homerow-3-minute-typing-test.html">3 minute</a>, or <a href="homerow-5-minute-typing-test.html">5 minute</a> typing test.</p>
 
     <h3>What counts as a good typing speed?</h3>
     <ul class="wpm-benchmarks">
@@ -240,10 +244,11 @@
 </main>
 
 <footer>
+<p class="network-links">Typing tests: <a href="homerow-30-second-typing-test.html">30 second</a> · <a href="homerow-1-minute-typing-test.html">1 minute</a> · <a href="homerow-2-minute-typing-test.html">2 minute</a> · <a href="homerow-3-minute-typing-test.html">3 minute</a> · <a href="homerow-5-minute-typing-test.html">5 minute</a></p>
 <p class="network-links">Guides: <a href="homerow-how-to-type-faster.html">How to type faster</a> · <a href="homerow-good-typing-speed.html">Good typing speed</a> · <a href="homerow-typing-accuracy.html">Typing accuracy</a> · <a href="homerow-type-without-looking.html">Type without looking</a></p>
 <p class="network-links">More free tools from us: <a href="https://usequietzone.com">Quiet Zone</a> · <a href="https://quantizeapp.com">Quantize</a> · <a href="https://monospace.tools">monospace</a> · <a href="https://crossovercalc.app">Crossover</a></p>
   <div class="foot-inner">
-    <nav>
+    <nav aria-label="Footer">
       <a href="homerow-about.html">About</a>
       <a href="homerow-faq.html">FAQ</a>
       <a href="homerow-contact.html">Contact</a>

@@ -207,7 +207,7 @@ function pushHistory(entry) {
   try {
     const hist = getHistory();
     hist.unshift(entry);
-    const trimmed = hist.slice(0, 5);
+    const trimmed = hist.slice(0, 30);
     localStorage.setItem('homerow-history', JSON.stringify(trimmed));
     return trimmed;
   } catch (e) {
@@ -299,6 +299,14 @@ const heatmapWrap = document.getElementById('heatmapWrap');
 const keyboardEl = document.getElementById('keyboard');
 const historyRow = document.getElementById('historyRow');
 const historyChips = document.getElementById('historyChips');
+const statsPanel = document.getElementById('statsPanel');
+const statCount = document.getElementById('statCount');
+const statAvg = document.getElementById('statAvg');
+const statBest = document.getElementById('statBest');
+const statAcc = document.getElementById('statAcc');
+const statSpark = document.getElementById('statSpark');
+const clearDataBtn = document.getElementById('clearDataBtn');
+const sizeBtns = document.querySelectorAll('.size-btn');
 
 if (passageEl) {
   // ============ State ============
@@ -605,7 +613,7 @@ if (passageEl) {
     if (historyRow && historyChips) {
       if (hist.length > 1) {
         historyChips.innerHTML = hist
-          .slice(1)
+          .slice(1, 5)
           .map((h) => `<span class="history-chip">${h.wpm}<small>/${h.accuracy}%</small></span>`)
           .join('');
         historyRow.hidden = false;
@@ -614,6 +622,7 @@ if (passageEl) {
       }
     }
 
+    renderStats();
     setState('Finished');
     setControlsQuiet(false);
 
@@ -815,5 +824,82 @@ if (passageEl) {
     }
   });
 
+  // ============ Progress panel (local only; built from the saved history) ============
+  function renderStats() {
+    if (!statsPanel) return;
+    const hist = getHistory();
+    if (!hist.length) { statsPanel.hidden = true; return; }
+    const wpms = hist.map((h) => h.wpm);
+    const accs = hist.map((h) => h.accuracy);
+    const avg = (a) => Math.round(a.reduce((x, y) => x + y, 0) / a.length);
+    statCount.textContent = hist.length;
+    statAvg.textContent = avg(wpms);
+    statBest.textContent = Math.max(...wpms, ...Object.values(getBests()));
+    statAcc.textContent = avg(accs) + '%';
+    const series = wpms.slice().reverse(); // history is newest-first; chart reads oldest to newest
+    if (statSpark) {
+      if (series.length < 2) {
+        statSpark.innerHTML = '';
+      } else {
+        const w = 500, h = 56, max = Math.max(...series, 10), min = Math.min(...series);
+        const span = Math.max(1, max - min);
+        const pts = series.map((v, i) => `${((i / (series.length - 1)) * w).toFixed(1)},${(h - 4 - ((v - min) / span) * (h - 8)).toFixed(1)}`);
+        statSpark.innerHTML = `<polyline points="${pts.join(' ')}" fill="none" stroke="#F5C34E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />`;
+      }
+    }
+    statsPanel.hidden = false;
+  }
+
+  let clearArmed = false;
+  if (clearDataBtn) {
+    clearDataBtn.addEventListener('click', (e) => {
+      if (!clearArmed) {
+        clearArmed = true;
+        clearDataBtn.textContent = 'Click again to confirm';
+        setTimeout(() => { if (clearArmed) { clearArmed = false; clearDataBtn.textContent = 'Clear my data'; } }, 4000);
+        return;
+      }
+      clearArmed = false;
+      try {
+        localStorage.removeItem('homerow-bests');
+        localStorage.removeItem('homerow-streak');
+        localStorage.removeItem('homerow-history');
+      } catch (err) {}
+      renderStats();
+      if (streakBadge) streakBadge.hidden = true;
+      if (streakLine) streakLine.hidden = true;
+      if (historyRow) historyRow.hidden = true;
+      if (bestBadge) bestBadge.hidden = true;
+      clearDataBtn.textContent = 'Cleared';
+      setTimeout(() => { clearDataBtn.textContent = 'Clear my data'; }, 1500);
+    });
+  }
+
+  // ============ Text size (accessibility), remembered locally ============
+  function applySize(sz) {
+    document.body.classList.remove('size-s', 'size-l');
+    if (sz === 's') document.body.classList.add('size-s');
+    if (sz === 'l') document.body.classList.add('size-l');
+    sizeBtns.forEach((b) => {
+      const on = b.dataset.size === sz;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+    lineHeightPx = 0;
+    if (builtTarget === target && spans.length) {
+      updateCaret();
+      scrollToCurrentLine(spans[hiddenInput.value.length]);
+    }
+  }
+  let savedSize = 'm';
+  try { savedSize = localStorage.getItem('homerow-size') || 'm'; } catch (err) {}
+  applySize(['s', 'm', 'l'].includes(savedSize) ? savedSize : 'm');
+  sizeBtns.forEach((b) => b.addEventListener('click', (e) => {
+    applySize(b.dataset.size);
+    try { localStorage.setItem('homerow-size', b.dataset.size); } catch (err) {}
+    if (e.detail > 0) b.blur();
+  }));
+
+  renderStats();
   reset();
 }

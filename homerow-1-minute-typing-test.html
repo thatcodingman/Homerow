@@ -74,6 +74,7 @@
 <link rel="stylesheet" href="homerow-styles.css">
 </head>
 <body data-duration="60">
+<a class="skip-link" href="#main">Skip to content</a>
 
 <header class="nav">
   <a href="index.html" class="wordmark">Home Row</a>
@@ -81,11 +82,11 @@
     <a href="homerow-about.html">About</a>
     <a href="homerow-faq.html">FAQ</a>
     <a href="homerow-contact.html">Contact</a>
-    <a href="homerow-how-to-type-faster.html">Guide</a>
+    <a href="homerow-guides.html">Guides</a>
   </nav>
 </header>
 
-<main>
+<main id="main">
   <section class="hero">
     <p class="eyebrow">Free 1 minute test</p>
     <h1>1 minute typing test</h1>
@@ -115,6 +116,11 @@
       <span class="switch-track"><span class="switch-thumb"></span></span>
       <span>Key click sound</span>
     </label>
+    <span class="size-group" role="group" aria-label="Text size">
+      <button type="button" class="size-btn" data-size="s" aria-label="Small text" aria-pressed="false">A</button>
+      <button type="button" class="size-btn active" data-size="m" aria-label="Medium text" aria-pressed="true">A</button>
+      <button type="button" class="size-btn" data-size="l" aria-label="Large text" aria-pressed="false">A</button>
+    </span>
     <span class="state-badge" id="stateBadge">
       <span class="state-dot" id="stateDot"></span>
       <span id="stateText">Ready</span>
@@ -178,6 +184,21 @@
   <canvas id="shareCanvas" width="1200" height="630" style="display:none;" aria-hidden="true"></canvas>
 
   <p class="tool-note">Everything runs in your browser — no keystrokes, results, or timing data are ever sent anywhere.</p>
+  <p class="shortcut-hint">Shortcuts: Space starts · Esc resets · 1–6 pick a length</p>
+  <p class="tool-note touch-note">Home Row works best with a physical keyboard.</p>
+
+  <section class="stats-panel" id="statsPanel" aria-labelledby="statsHeading" hidden>
+    <h2 id="statsHeading">Your progress</h2>
+    <div class="results-grid">
+      <div class="stat"><span class="stat-value" id="statCount">0</span><span class="stat-label">Tests</span></div>
+      <div class="stat"><span class="stat-value" id="statAvg">0</span><span class="stat-label">Avg WPM</span></div>
+      <div class="stat"><span class="stat-value" id="statBest">0</span><span class="stat-label">Best WPM</span></div>
+      <div class="stat"><span class="stat-value" id="statAcc">0%</span><span class="stat-label">Avg accuracy</span></div>
+    </div>
+    <svg id="statSpark" viewBox="0 0 500 56" preserveAspectRatio="none" role="img" aria-label="Your recent WPM trend"></svg>
+    <p class="tool-note" style="margin:0 0 12px">Saved only in this browser, from your last 30 tests.</p>
+    <button type="button" class="link-btn" id="clearDataBtn">Clear my data</button>
+  </section>
 
   <section class="seo-content" aria-labelledby="about-heading">
     <h2 id="about-heading">About the 1 minute typing test</h2>
@@ -231,7 +252,7 @@
       <a href="homerow-about.html">About</a>
       <a href="homerow-faq.html">FAQ</a>
       <a href="homerow-contact.html">Contact</a>
-      <a href="homerow-how-to-type-faster.html">Guide</a>
+      <a href="homerow-guides.html">Guides</a>
       <a href="homerow-terms.html">Terms</a>
       <a href="homerow-privacy.html">Privacy</a>
     </nav>
